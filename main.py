@@ -1,6 +1,7 @@
 from src.visualize import plot_warehouse
 from src.warehouse import Warehouse
-from src.optimizer import optimize_route
+from src.optimizer import optimize_route, total_distance
+
 
 warehouse = Warehouse()
 entrance = (0, 0)
@@ -26,5 +27,17 @@ route = optimize_route(entrance, locations)
 print("\nOptimized Picking Route:")
 for step in route:
     print(step)
+
+distance = total_distance(route)
+
+print("\nStep-by-step Picking Instructions:")
+for i, step in enumerate(route):
+    if i == 0:
+        print(f"Start at Entrance {step}")
+    else:
+        print(f"Go to location {step} and pick item")
+
+print(f"\nTotal walking distance: {distance} units")
+
 
 plot_warehouse(route, warehouse.products)

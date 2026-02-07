@@ -5,6 +5,7 @@ def manhattan_distance(p1, p2):
     """
     return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
 
+
 def optimize_route(start, locations):
     """
     Nearest Neighbor Optimization.
@@ -22,3 +23,11 @@ def optimize_route(start, locations):
         current = nearest
 
     return route
+
+
+def total_distance(route):
+    """Calculate total walking distance of the route"""
+    dist = 0
+    for i in range(len(route) - 1):
+        dist += manhattan_distance(route[i], route[i+1])
+    return dist
