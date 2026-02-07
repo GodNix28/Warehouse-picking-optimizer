@@ -1,3 +1,4 @@
+from src.visualize import plot_warehouse
 from src.warehouse import Warehouse
 from src.optimizer import optimize_route
 
@@ -25,3 +26,5 @@ route = optimize_route(entrance, locations)
 print("\nOptimized Picking Route:")
 for step in route:
     print(step)
+
+plot_warehouse(route, warehouse.products)
