@@ -1,3 +1,4 @@
+from src.ai_parser import parse_order
 from src.visualize import plot_warehouse
 from src.warehouse import Warehouse
 from src.optimizer import optimize_route, total_distance
@@ -10,8 +11,11 @@ print("Available products:")
 for item in warehouse.products:
     print("-", item)
 
-order = input("\nEnter items separated by comma: ")
-items = [i.strip() for i in order.split(",")]
+order = input("\nDescribe your order: ")
+items = parse_order(order)
+
+print("\nAI interpreted items:", items)
+
 
 locations = []
 
