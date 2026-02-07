@@ -1,37 +1,42 @@
 import os
+import requests
 from dotenv import load_dotenv
-from openai import OpenAI
 
-# Load .env file
 load_dotenv()
 
-client = OpenAI(
-    api_key=os.getenv("SCALEDOWN_API_KEY"),
-    base_url=os.getenv("SCALEDOWN_BASE_URL")
-)
+API_KEY = os.getenv("SCALEDOWN_API_KEY")
+
+URL = "https://api.scaledown.xyz/v1/responses"
 
 def parse_order(user_text):
 
     system_prompt = """
-You are a warehouse assistant.
+Extract the product names from the sentence.
 
-From the user's sentence, extract only the product names that exist in the warehouse.
-
-Return ONLY a comma-separated list.
-
-Available products:
+Return ONLY a comma separated list using these allowed items:
 toothpaste, notebook, charger, mouse, keyboard, water_bottle
 """
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_text}
-        ],
-        temperature=0
-    )
+    payload = {
+        "model": "gpt-4o",
+        "input": f"{system_prompt}\n\nSentence: {user_text}"
+    }
 
-    items_text = response.choices[0].message.content.strip()
+    headers = {
+        "x-api-key": API_KEY,
+        "Content-Type": "application/json"
+    }
 
-    return [i.strip() for i in items_text.split(",")]
+    response = requests.post(URL, headers=headers, json=payload)
+
+    data = response.json()
+
+    print("\nFULL API RESPONSE:")
+    print(data)
+
+    try:
+        content = data["output"][0]["content"][0]["text"]
+    except:
+        return []
+
+    return [i.strip() for i in content.split(",")]

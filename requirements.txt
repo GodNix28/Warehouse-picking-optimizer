@@ -2,3 +2,5 @@ matplotlib
 openai
 python-dotenv
 requests
+sentence-transformers
+scikit-learn
