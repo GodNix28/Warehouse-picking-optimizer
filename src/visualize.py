@@ -1,25 +1,26 @@
 import matplotlib.pyplot as plt
 
 def plot_warehouse(route, products):
-    plt.figure(figsize=(6,6))
+    fig, ax = plt.subplots(figsize=(7,7))
 
-    # Plot all product locations
-    for item, loc in products.items():
-        plt.scatter(loc[0], loc[1])
-        plt.text(loc[0]+0.1, loc[1]+0.1, item, fontsize=8)
-
-    # Plot the path
-    x = [point[0] for point in route]
-    y = [point[1] for point in route]
-    plt.plot(x, y, marker='o')
+    # Plot shelves
+    for item, (x, y) in products.items():
+        ax.scatter(x, y, s=120)
+        ax.text(x+0.1, y+0.1, item, fontsize=9)
 
     # Entrance
-    plt.scatter(route[0][0], route[0][1], s=100, marker='s')
-    plt.text(route[0][0]+0.1, route[0][1]+0.1, "Entrance", fontsize=9)
+    ax.scatter(0, 0, s=250, marker="s")
+    ax.text(0.1, 0.1, "Entrance", fontsize=10)
 
-    plt.title("Optimized Warehouse Picking Route")
-    plt.xlim(0,10)
-    plt.ylim(0,10)
-    plt.grid(True)
+    # Route path
+    if route and len(route) > 1:
+        xs = [p[0] for p in route]
+        ys = [p[1] for p in route]
+        ax.plot(xs, ys, linewidth=3)
 
-    plt.show()
+    ax.set_title("Optimized Picking Path")
+    ax.set_xlim(-1, 10)
+    ax.set_ylim(-1, 10)
+    ax.grid(True)
+
+    return fig

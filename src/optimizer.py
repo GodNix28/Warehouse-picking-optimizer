@@ -31,3 +31,12 @@ def total_distance(route):
     for i in range(len(route) - 1):
         dist += manhattan_distance(route[i], route[i+1])
     return dist
+
+def naive_route(start, locations):
+    """
+    Simulates a worker walking in the given order without optimization.
+    """
+    route = [start]
+    for loc in locations:
+        route.append(loc)
+    return route
