@@ -1,186 +1,255 @@
-# Warehouse-picking-optimizer
-AI-Assisted Route Optimization for Efficient Order Fulfillment
+# Warehouse Picking Optimizer
+
+Capacity-Constrained Route Optimization for Warehouse Order Fulfillment
+
 Overview
 
-Modern warehouses process hundreds of orders every day.
-The largest operational cost in order fulfillment is not storage or packaging — it is human walking distance during item picking.
+In warehouse fulfillment operations, a major portion of order processing time is spent walking between shelves during item picking.
+Workers often collect items in the order they remember them rather than in an efficient path, causing unnecessary travel across aisles.
 
-When workers follow inefficient paths across shelves and aisles, time and labor costs increase significantly.
+This project implements a Warehouse Picking Optimizer — a decision-support system that computes an efficient picking route and generates clear instructions for the worker.
 
-This project implements a Warehouse Picking Optimizer, a decision-support system that calculates the most efficient picking route for a worker and provides clear step-by-step instructions.
+The application demonstrates how algorithmic optimization can improve operational efficiency without additional manpower.
 
-The system combines:
-
-algorithmic optimization
-
-natural language understanding
-
-visualization
-
-AI-assisted instruction generation
-
-The goal is to simulate how real logistics systems assist warehouse operators.
+The optimization engine is deterministic and works independently of AI.
+Natural language processing is provided only as an optional input interface layer.
 
 Problem Statement
 
 Given:
 
-a warehouse layout
+A warehouse layout
 
-product shelf locations
+Known shelf locations of products
 
-a customer order
+A list of required items
 
 Determine:
 
-the optimal sequence in which items should be picked
+The optimal sequence in which items should be picked
 
-the minimum walking distance required
+The total walking distance required
 
-human-readable instructions for the worker
+Clear instructions for a warehouse worker
 
-Traditional manual picking causes:
+Manual picking typically causes:
 
-redundant walking
+Backtracking between aisles
 
-increased worker fatigue
+Worker fatigue
 
-slower order processing
+Increased fulfillment time
 
-This project demonstrates how software can reduce operational cost using optimization techniques.
+The goal is to reduce walking distance through route planning.
 
 Key Features
-1. Warehouse Modeling
+1) Dual Input Modes
 
-A digital warehouse grid stores the position of each product as coordinates.
-This simulates real shelf locations inside a fulfillment center.
+The system supports two methods of order entry:
 
-2. Natural Language Order Input
+AI-Assisted Mode
 
-The user does not need to type exact product names.
+User enters natural language
 
 Example:
+urgent charger and notebook, also get mouse
 
-"I need a bottle and a notebook and a mouse"
+Manual Mode (No AI)
+
+User selects items directly from inventory
+
+Ensures deterministic reproducibility
+
+Demonstrates the optimizer works independently of LLMs
+
+2) Warehouse Modeling
+
+The warehouse is modeled as a 2D grid.
+Each product occupies a coordinate (shelf location), and the entrance acts as the starting/ending node.
+
+3) Route Optimization Engine
+
+The application implements a Nearest Neighbor heuristic to solve a variant of the Travelling Salesman Problem under constraints.
+
+For each trip:
+
+Start at entrance
+
+Visit nearest unpicked shelf
+
+Repeat until cart capacity reached
+
+Return to entrance
+
+Continue remaining items
+
+4) Capacity-Constrained Picking
+
+Workers have limited cart space.
+
+The system splits orders into multiple trips:
+
+Trip 1: Entrance → shelves → Entrance
+Trip 2: Entrance → shelves → Entrance
 
 
-The system interprets this and maps it to available warehouse items.
+This models real warehouse operations.
 
-3. Route Optimization Algorithm
+5) Distance Calculation
 
-The project implements the Nearest Neighbor heuristic (a solution to the Travelling Salesman Problem variant).
-
-The algorithm:
-
-starts from the entrance
-
-repeatedly selects the nearest unpicked item
-
-produces an efficient picking sequence
-
-This minimizes total walking distance.
-
-4. Distance Calculation
-
-Walking distance is computed using Manhattan Distance:
+Walking distance uses Manhattan Distance:
 
 distance = |x1 − x2| + |y1 − y2|
 
-This reflects real warehouse movement (workers move aisle-to-aisle, not diagonally).
 
-5. Route Visualization
+This reflects real aisle movement (no diagonal walking).
 
-The optimized path is plotted on a warehouse map using matplotlib, allowing visual verification of the efficiency of the chosen route.
+6) Baseline vs Optimized Comparison
 
-6. AI-Assisted Worker Instructions
+The system computes two strategies:
 
-The system integrates the ScaleDown AI API to optimize instruction phrasing and generate clear picking guidance for warehouse operators.
+Baseline: worker follows given order
 
-The system outputs step-by-step instructions that a non-technical worker can follow.
+Optimized: algorithm reorders shelves
 
-System Workflow
+The application displays:
 
-User enters order in natural language
+walking distance
 
-System interprets items
+distance saved
 
-Warehouse locations are retrieved
+improvement percentage
 
-Route optimization algorithm runs
+picking sequence
 
-Distance is calculated
+7) Visualization
 
-Path is visualized
+The picking route is plotted on a warehouse map using Matplotlib, allowing visual verification of the optimization.
 
-Worker instructions are generated
+System Architecture
+
+The system is divided into independent components:
+
+Input Layer
+
+Natural language input
+
+Manual selection interface
+
+Parsing & Validation
+
+Extracts items
+
+Validates against inventory
+
+Optimization Engine
+
+Grid warehouse model
+
+Manhattan distance metric
+
+Nearest neighbor routing
+
+Multi-trip capacity handling
+
+Output Layer
+
+Worker instructions
+
+Route visualization
+
+Performance metrics
+
+How to Run Locally
+1. Clone repository
+git clone https://github.com/YOUR-USERNAME/Warehouse-picking-optimizer
+
+2. Enter directory
+cd Warehouse-picking-optimizer
+
+3. Install dependencies
+pip install -r requirements.txt
+
+4. Run application
+streamlit run app.py
+
+
+Then open:
+
+http://localhost:8501
 
 Technologies Used
 Component	Technology
-Core Logic	Python
-Optimization	Nearest Neighbor Algorithm
+Language	Python
+UI	Streamlit
 Visualization	Matplotlib
-NLP Interpretation	Sentence Transformers
-AI Integration	ScaleDown API
-Data Handling	JSON structures
-Project Structure
-warehouse-picking-optimizer/
-│
-├── src/
-│   ├── warehouse.py
-│   ├── optimizer.py
-│   ├── visualize.py
-│   ├── ai_parser.py
-│   └── instruction_generator.py
-│
-├── main.py
-├── requirements.txt
-└── README.md
+Optimization	Nearest Neighbor Heuristic
+Distance Metric	Manhattan Distance
+Optional NLP	Natural Language Parsing
+Example Workflow
+
+User enters or selects items
+
+System validates products
+
+Shelves are located
+
+Optimizer computes route
+
+Capacity trips generated
+
+Distance calculated
+
+Instructions displayed
+
+Route visualized
 
 Example Output
 
-User Input:
+The application produces:
 
-I need a notebook, a bottle and a mouse
+optimized picking order
 
+baseline vs optimized comparison
 
-System Output:
+total walking distance
 
-Identifies required items
+step-by-step instructions
 
-Calculates optimal path
+warehouse route map
 
-Displays warehouse map
+Why This Matters
 
-Provides worker instructions
+In real warehouses, walking accounts for a large portion of fulfillment time.
+Even small reductions in distance per order scale significantly across hundreds of daily orders.
 
-Computes walking distance
-
-Unique Contribution
-
-Unlike typical chatbot-based projects, this system focuses on operational decision optimization rather than conversation.
-
-It demonstrates how AI can assist real physical workflows, not just answer questions.
-
-The project models a real industrial problem:
-reducing human effort in logistics operations.
+This system demonstrates how software planning alone can improve productivity without robotics or hardware changes.
 
 Future Improvements
 
-Multiple workers optimization
+Multiple worker coordination
 
-Real warehouse layout import (CSV)
+Real warehouse layout import
 
-Dynamic inventory updates
+Dynamic order arrivals
+
+Obstacle / blocked aisle simulation
 
 Mobile interface for pickers
 
-Priority order handling
-
-Collision avoidance between workers
-
 Conclusion
 
-This project shows how algorithmic optimization and AI services can be combined to improve warehouse efficiency.
-It transforms a simple order list into an actionable picking plan, reducing walking distance and improving productivity.
+The Warehouse Picking Optimizer converts an order request into an actionable picking plan.
+It models a real logistics problem and applies algorithmic optimization to reduce unnecessary movement.
 
-The system represents a practical application of computer science concepts such as path optimization, natural language processing, and human-AI interaction in industrial environments.
+The project demonstrates practical application of:
+
+graph modeling
+
+heuristic optimization
+
+constraint handling
+
+human-readable system output
+
+Rather than being an AI chatbot, it is an operations optimization system with an optional AI interface.
