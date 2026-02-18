@@ -8,7 +8,16 @@ from src.optimizer import optimize_route, total_distance, naive_route
 st.set_page_config(page_title="Warehouse Picking Optimizer", layout="wide")
 
 st.title("📦 Warehouse Picking Optimizer")
-# Show available inventory
+
+# ---------------- MODE SELECTION ----------------
+st.subheader("Order Input Method")
+
+mode = st.radio(
+    "Choose how you want to enter the order:",
+    ["Natural Language (AI Assisted)", "Manual Selection (No AI)"]
+)
+
+# ---------------- SHOW INVENTORY ----------------
 warehouse_preview = Warehouse()
 
 st.subheader("🧾 Available Products in Warehouse")
@@ -19,42 +28,60 @@ products = list(warehouse_preview.products.keys())
 for i, item in enumerate(products):
     product_cols[i % 3].info(item)
 
-
+# ---------------- HOW TO USE ----------------
 with st.expander("How to use this tool"):
     st.write("""
-    1. Type the items you want in natural language.
+    1. Type the items you want in natural language OR manually select them.
     2. You can mark priority items using the word 'urgent'.
     3. Adjust cart capacity to simulate worker trolley size.
     4. Click 'Optimize Route' to see the picking path.
-
-    Example:
-    urgent: charger and notebook
-    also get a mouse and a water bottle
     """)
 
-st.write("Describe the items needed in natural language.")
-st.write("You can mark priority items using the word **urgent**.")
+# ---------------- AI MODE INPUT ----------------
+manual_items = []
+manual_urgent = []
 
-# --- Example order buttons ---
-colE1, colE2 = st.columns(2)
+if mode == "Natural Language (AI Assisted)":
 
-if colE1.button("Load Example Order"):
-    st.session_state["example_text"] = """urgent: charger and notebook
+    st.write("Describe the items needed in natural language.")
+    st.write("You can mark priority items using the word **urgent**.")
+
+    # Example buttons
+    colE1, colE2 = st.columns(2)
+
+    if colE1.button("Load Example Order"):
+        st.session_state["example_text"] = """urgent: charger and notebook
 also get a mouse and a water bottle"""
 
-if colE2.button("Clear"):
-    st.session_state["example_text"] = ""
+    if colE2.button("Clear"):
+        st.session_state["example_text"] = ""
 
-if "example_text" not in st.session_state:
-    st.session_state["example_text"] = ""
+    if "example_text" not in st.session_state:
+        st.session_state["example_text"] = ""
 
-user_input = st.text_area(
-    "Order description:",
-    value=st.session_state["example_text"],
-    height=150
-)
+    user_input = st.text_area(
+        "Order description:",
+        value=st.session_state["example_text"],
+        height=150
+    )
 
-# Capacity slider
+else:
+    # ---------------- MANUAL MODE INPUT ----------------
+    st.subheader("Select Required Items")
+
+    manual_items = st.multiselect(
+        "Choose products from warehouse inventory:",
+        products
+    )
+
+    manual_urgent = st.multiselect(
+        "Mark urgent items:",
+        manual_items
+    )
+
+    user_input = ""  # no text needed
+
+# ---------------- CAPACITY ----------------
 capacity = st.slider("Cart Capacity (max items per trip)", 1, 6, 3)
 
 # ---------------- BUTTON ACTION ----------------
@@ -65,15 +92,20 @@ if st.button("Optimize Route"):
         warehouse = Warehouse()
         entrance = (0, 0)
 
-        # ---- Process Order ----
-        urgent_items, normal_items = process_order(user_input)
+        # ---- ORDER PROCESSING DEPENDING ON MODE ----
+        if mode == "Natural Language (AI Assisted)":
+            urgent_items, normal_items = process_order(user_input)
+        else:
+            urgent_items = manual_urgent
+            normal_items = [i for i in manual_items if i not in manual_urgent]
+
         items = urgent_items + normal_items
 
         if not items:
-            st.error("No valid items detected. Try again.")
+            st.error("No items selected or detected.")
             st.stop()
 
-        # ---- Display detected items ----
+        # ---- DISPLAY DETECTED ITEMS ----
         col1, col2 = st.columns(2)
 
         with col1:
@@ -92,12 +124,11 @@ if st.button("Optimize Route"):
             else:
                 st.write("None")
 
-        # ---- Locations ----
+        # ---- LOCATIONS ----
         urgent_locations = [warehouse.get_location(i) for i in urgent_items if warehouse.get_location(i)]
         normal_locations = [warehouse.get_location(i) for i in normal_items if warehouse.get_location(i)]
 
-        # ---- Baseline ----
-        # ---- Realistic baseline (worker without optimization but same capacity) ----
+        # ---- BASELINE (NO OPTIMIZATION, SAME CAPACITY) ----
         baseline_route = [entrance]
         remaining_baseline = (urgent_locations + normal_locations).copy()
 
@@ -105,7 +136,6 @@ if st.button("Optimize Route"):
             batch = remaining_baseline[:capacity]
             remaining_baseline = remaining_baseline[capacity:]
 
-            # no optimization: just visit in given order
             for loc in batch:
                 baseline_route.append(loc)
 
@@ -113,10 +143,8 @@ if st.button("Optimize Route"):
 
         baseline_distance = total_distance(baseline_route)
 
-
-        # ---- Multi-trip optimized route ----
-        all_items = urgent_items + normal_items
-        all_locations = [warehouse.get_location(i) for i in all_items if warehouse.get_location(i)]
+        # ---- OPTIMIZED ROUTE ----
+        all_locations = (urgent_locations + normal_locations)
 
         route = [entrance]
         remaining = all_locations.copy()
@@ -131,7 +159,7 @@ if st.button("Optimize Route"):
 
         distance = total_distance(route)
 
-        # ---- Performance ----
+        # ---- PERFORMANCE ----
         st.subheader("📊 Performance Improvement")
 
         saved = baseline_distance - distance
@@ -142,7 +170,7 @@ if st.button("Optimize Route"):
         colB.metric("Optimized Distance", f"{distance} units")
         colC.metric("Distance Saved", f"{saved} units", f"{percent:.1f}% improvement")
 
-        # ---- Instructions ----
+        # ---- INSTRUCTIONS ----
         st.subheader("👷 Worker Instructions")
 
         trip = 1
@@ -158,7 +186,7 @@ if st.button("Optimize Route"):
             else:
                 st.write(f"Go to shelf {step} and pick item")
 
-        # ---- Map ----
+        # ---- MAP ----
         st.subheader("🗺️ Warehouse Route Map")
         fig = plot_warehouse(route, warehouse.products)
         st.pyplot(fig)

@@ -1,5 +1,5 @@
 matplotlib
-numpy
+numpy7
 openai
 python-dotenv
 requests
