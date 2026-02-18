@@ -142,6 +142,11 @@ if st.button("Optimize Route"):
             baseline_route.append(entrance)
 
         baseline_distance = total_distance(baseline_route)
+        # ---- SHOW BASELINE PATH ----
+        st.subheader("📍 Baseline Picking Sequence (No Optimization)")
+        baseline_sequence = " → ".join([str(p) for p in baseline_route])
+        st.code(baseline_sequence)
+
 
         # ---- OPTIMIZED ROUTE ----
         all_locations = (urgent_locations + normal_locations)
@@ -158,6 +163,11 @@ if st.button("Optimize Route"):
             route.append(entrance)
 
         distance = total_distance(route)
+        # ---- SHOW OPTIMIZED PATH ----
+        st.subheader("🚀 Optimized Picking Sequence")
+        optimized_sequence = " → ".join([str(p) for p in route])
+        st.code(optimized_sequence)
+
 
         # ---- PERFORMANCE ----
         st.subheader("📊 Performance Improvement")
