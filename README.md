@@ -253,3 +253,15 @@ constraint handling
 human-readable system output
 
 Rather than being an AI chatbot, it is an operations optimization system with an optional AI interface.
+
+## Screenshots
+
+### Route Visualization
+![Route Map](screenshots/route_map.png)
+
+### Performance Comparison
+![Performance](screenshots/performance.png)
+
+### Manual Selection Mode
+![Manual Mode](screenshots/manual_mode.png)
+
