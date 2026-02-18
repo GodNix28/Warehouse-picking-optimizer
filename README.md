@@ -162,7 +162,7 @@ Performance metrics
 
 How to Run Locally
 1. Clone repository
-git clone https://github.com/YOUR-USERNAME/Warehouse-picking-optimizer
+git clone https://github.com/GodNix28/Warehouse-picking-optimizer
 
 2. Enter directory
 cd Warehouse-picking-optimizer
