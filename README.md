@@ -257,7 +257,7 @@ Rather than being an AI chatbot, it is an operations optimization system with an
 ## Screenshots
 
 ### Route Visualization
-![Route Map](screenshots/route_map.png)
+![Route Map](screenshots/route.png)
 
 ### Performance Comparison
 ![Performance](screenshots/performance.png)
